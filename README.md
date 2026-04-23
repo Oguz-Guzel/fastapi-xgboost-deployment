@@ -14,8 +14,8 @@ This repository demonstrates the transition of a machine learning model from exp
 ## Project Status & Roadmap
 - [x] **Modular Training Pipeline:** Separated logic into `src/train.py` and `src/config.py`.
 - [x] **Artifact Management:** Scaler and Model serialization to `/models`.
-- [ ] **Data Validation:** Strict schema enforcement via Pydantic.
-- [ ] **REST API:** Inference serving via FastAPI.
+- [x] **Data Validation:** Strict schema enforcement via Pydantic.
+- [x] **REST API:** Inference serving via FastAPI.
 - [ ] **Containerization:** Production packaging with Docker.
 
 ## Tech Stack
