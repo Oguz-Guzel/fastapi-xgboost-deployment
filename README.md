@@ -33,6 +33,10 @@ This repository demonstrates the transition of a machine learning model from exp
 ├── models/                   # Saved ML artifacts (ignored in git)
 │   ├── model.json            # XGBoost model weights
 │   └── scaler.pkl            # Fitted StandardScaler
+├── tests/
+│   ├── __init__.py
+│   ├── test_logic.py    # Tests for training/scaling logic
+│   └── test_api.py      # Tests for FastAPI endpoints
 ├── data/                     # Local Data (Git-ignored)
 ├── pyproject.toml            # Project dependencies (managed by uv)
 ├── uv.lock                   # Deterministic dependency lockfile
