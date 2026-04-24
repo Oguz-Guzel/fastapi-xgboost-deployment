@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD - Hugging Face Space
 
 on:
   push:
