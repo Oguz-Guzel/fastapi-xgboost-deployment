@@ -32,8 +32,12 @@ This repository demonstrates the transition of a machine learning model from exp
 * **Machine Learning:** XGBoost, Scikit-Learn, Pandas, NumPy
 * **API Framework:** FastAPI, Uvicorn, Pydantic
 * **Environment Management:** uv
-* **Infrastructure:** Docker, Hugging Face Spaces, Linux
+* **Infrastructure:** Docker, Hugging Face Spaces, AWS ECR, Linux
 * **Version Control:** Git
+
+## Live API
+* Hugging Face Space Docs: https://oguz-guzel-hf-fastapi-xgboost-deployment.hf.space/docs
+* AWS is also supported as an alternative deployment target via [.github/workflows/aws-ecr.yml](.github/workflows/aws-ecr.yml).
 
 ## Model Artifact Strategy (MLE Pattern)
 This API supports loading model artifacts from a dedicated Hugging Face model repository using a pinned revision.
