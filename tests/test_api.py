@@ -1,10 +1,31 @@
+from contextlib import asynccontextmanager
+import numpy as np
 from fastapi.testclient import TestClient
 import pytest
-from app.main import app
+import app.main as main_app
+
+
+class DummyScaler:
+    def transform(self, input_df):
+        return input_df.values
+
+
+class DummyModel:
+    def predict(self, dmatrix):
+        return np.array([0.8])
 
 @pytest.fixture
-def client():
-    with TestClient(app) as test_client:
+def client(monkeypatch):
+    @asynccontextmanager
+    async def noop_lifespan(_app):
+        yield
+
+    # Avoid loading filesystem artifacts during tests.
+    monkeypatch.setattr(main_app.app.router, "lifespan_context", noop_lifespan)
+    monkeypatch.setattr(main_app, "scaler", DummyScaler())
+    monkeypatch.setattr(main_app, "model", DummyModel())
+
+    with TestClient(main_app.app) as test_client:
         yield test_client
 
 def test_read_main(client):
