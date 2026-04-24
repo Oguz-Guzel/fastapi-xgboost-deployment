@@ -1,6 +1,6 @@
 ---
 title: Sensor Anomaly Detection API
-emoji: ""
+emoji: "🤖"
 colorFrom: blue
 colorTo: green
 sdk: docker
