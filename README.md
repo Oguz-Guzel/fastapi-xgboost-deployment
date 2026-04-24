@@ -1,3 +1,13 @@
+---
+title: Sensor Anomaly Detection API
+emoji: ""
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+app_port: 8000
+---
+
 # XGBoost Anomaly Detection API
 
 An end-to-end machine learning engineering project that trains an XGBoost classifier on tabular sensor data and deploys it as a production-ready REST API using FastAPI and Docker.
@@ -16,13 +26,13 @@ This repository demonstrates the transition of a machine learning model from exp
 - [x] **Artifact Management:** Scaler and Model serialization to `/models`.
 - [x] **Data Validation:** Strict schema enforcement via Pydantic.
 - [x] **REST API:** Inference serving via FastAPI.
-- [ ] **Containerization:** Production packaging with Docker.
+- [x] **Containerization:** Production packaging with Docker.
 
 ## Tech Stack
 * **Machine Learning:** XGBoost, Scikit-Learn, Pandas, NumPy
 * **API Framework:** FastAPI, Uvicorn, Pydantic
 * **Environment Management:** uv
-* **Infrastructure:** Docker, Linux
+* **Infrastructure:** Docker, Hugging Face Spaces, Linux
 * **Version Control:** Git
 
 ## Repository Structure
