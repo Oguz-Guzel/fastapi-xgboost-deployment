@@ -19,7 +19,12 @@ scaler = None
 async def lifespan(app: FastAPI):
     global model, scaler
     if not os.path.exists(MODEL_PATH) or not os.path.exists(SCALER_PATH):
-        raise RuntimeError("Model or Scaler artifacts not found. Run training first.")
+        # Keep the API process alive in environments where artifacts are mounted later.
+        model = None
+        scaler = None
+        print("Model or Scaler artifacts not found. /predict will return 503 until artifacts are available.")
+        yield
+        return
     
     # Load XGBoost Booster
     model = xgb.Booster()
@@ -44,6 +49,12 @@ def read_root():
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict(data: SensorData):
+    if model is None or scaler is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Model service unavailable: artifacts are not loaded yet."
+        )
+
     # 1. Convert Pydantic model to Dictionary, then to DataFrame
     input_dict = data.model_dump()
     input_df = pd.DataFrame([input_dict])
