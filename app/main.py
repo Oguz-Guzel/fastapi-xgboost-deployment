@@ -9,16 +9,62 @@ from .schemas import SensorData, PredictionResponse
 
 # 1. Global variables for the model and scaler
 # We load them once when the app starts, not every time a request comes in
-MODEL_PATH = "models/model.json"
-SCALER_PATH = "models/scaler.pkl"
+ARTIFACT_DIR = os.getenv("MODEL_ARTIFACT_DIR", "models")
+MODEL_FILE = "model.json"
+SCALER_FILE = "scaler.pkl"
+MODEL_PATH = os.path.join(ARTIFACT_DIR, MODEL_FILE)
+SCALER_PATH = os.path.join(ARTIFACT_DIR, SCALER_FILE)
+
+HF_MODEL_REPO_ID = os.getenv("HF_MODEL_REPO_ID", "").strip()
+HF_MODEL_REVISION = os.getenv("HF_MODEL_REVISION", "main").strip() or "main"
 
 model = None
 scaler = None
 
+
+def ensure_artifacts_available() -> tuple[str, str]:
+    if os.path.exists(MODEL_PATH) and os.path.exists(SCALER_PATH):
+        return MODEL_PATH, SCALER_PATH
+
+    if not HF_MODEL_REPO_ID:
+        return MODEL_PATH, SCALER_PATH
+
+    try:
+        from huggingface_hub import hf_hub_download
+    except ImportError:
+        print("huggingface_hub is not installed; cannot download model artifacts.")
+        return MODEL_PATH, SCALER_PATH
+
+    os.makedirs(ARTIFACT_DIR, exist_ok=True)
+
+    try:
+        model_path = hf_hub_download(
+            repo_id=HF_MODEL_REPO_ID,
+            filename=MODEL_FILE,
+            revision=HF_MODEL_REVISION,
+            local_dir=ARTIFACT_DIR,
+        )
+        scaler_path = hf_hub_download(
+            repo_id=HF_MODEL_REPO_ID,
+            filename=SCALER_FILE,
+            revision=HF_MODEL_REVISION,
+            local_dir=ARTIFACT_DIR,
+        )
+        print(
+            f"Downloaded model artifacts from {HF_MODEL_REPO_ID}@{HF_MODEL_REVISION} "
+            f"to {ARTIFACT_DIR}."
+        )
+        return model_path, scaler_path
+    except Exception as exc:
+        print(f"Failed to download model artifacts: {exc}")
+        return MODEL_PATH, SCALER_PATH
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global model, scaler
-    if not os.path.exists(MODEL_PATH) or not os.path.exists(SCALER_PATH):
+    artifact_model_path, artifact_scaler_path = ensure_artifacts_available()
+
+    if not os.path.exists(artifact_model_path) or not os.path.exists(artifact_scaler_path):
         # Keep the API process alive in environments where artifacts are mounted later.
         model = None
         scaler = None
@@ -26,13 +72,19 @@ async def lifespan(app: FastAPI):
         yield
         return
     
-    # Load XGBoost Booster
-    model = xgb.Booster()
-    model.load_model(MODEL_PATH)
-    
-    # Load Scikit-Learn Scaler
-    scaler = joblib.load(SCALER_PATH)
-    print("Model and Scaler loaded successfully.")
+    try:
+        # Load XGBoost Booster
+        model = xgb.Booster()
+        model.load_model(artifact_model_path)
+
+        # Load Scikit-Learn Scaler
+        scaler = joblib.load(artifact_scaler_path)
+        print("Model and Scaler loaded successfully.")
+    except Exception as exc:
+        model = None
+        scaler = None
+        print(f"Failed to load model artifacts: {exc}")
+
     yield
 
 # 2. Initialize FastAPI app

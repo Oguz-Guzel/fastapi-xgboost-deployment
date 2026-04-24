@@ -35,6 +35,20 @@ This repository demonstrates the transition of a machine learning model from exp
 * **Infrastructure:** Docker, Hugging Face Spaces, Linux
 * **Version Control:** Git
 
+## Model Artifact Strategy (MLE Pattern)
+This API supports loading model artifacts from a dedicated Hugging Face model repository using a pinned revision.
+
+Set these runtime variables in your Hugging Face Space settings:
+* `HF_MODEL_REPO_ID` (example: `your-username/sensor-anomaly-models`)
+* `HF_MODEL_REVISION` (example: a tag like `v1.0.0` or a commit SHA)
+* `MODEL_ARTIFACT_DIR` (optional, defaults to `models`)
+
+Expected files in the model repository revision:
+* `model.json`
+* `scaler.pkl`
+
+If artifacts are unavailable, the API stays up and `/predict` returns HTTP 503 until artifacts are available.
+
 ## Repository Structure
 ```text
 ├── src/                      # ML training code
